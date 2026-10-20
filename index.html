@@ -1,1 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Naija Life Simulator</title>
+
+    <meta
+        name="description"
+        content="Build your life, earn money, grow your business and shape your future in Nigeria."
+    >
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-icon">🇳🇬</span>
+
+            <div>
+                <h1>NAIJA LIFE</h1>
+                <p>YOUR LIFE. YOUR CHOICES.</p>
+            </div>
+        </div>
+
+        <div class="day-display">
+            <span>IN-GAME DAY</span>
+            <strong id="day">1</strong>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="welcome-panel">
+            <div>
+                <span class="eyebrow">YOUR STORY STARTS HERE</span>
+
+                <h2>Build your future.</h2>
+
+                <p>
+                    Start small. Work hard. Make decisions.
+                    Build the life you want.
+                </p>
+            </div>
+
+            <div class="welcome-flag">🇳🇬</div>
+        </section>
+
+        <section class="profile-card">
+            <div class="avatar">👤</div>
+
+            <div class="profile-details">
+                <span class="eyebrow">PLAYER PROFILE</span>
+                <h2 id="player-name">New Citizen</h2>
+                <p id="occupation">Unemployed</p>
+                <p id="location">Bauchi State, Nigeria</p>
+            </div>
+
+            <button id="change-name-btn" class="secondary-button">
+                Edit Name
+            </button>
+        </section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <span class="stat-icon">💰</span>
+                <p>Cash Balance</p>
+                <h3 id="money">₦5,000</h3>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-icon">❤️</span>
+                <p>Health</p>
+                <h3 id="health">100 / 100</h3>
+                <div class="progress-track">
+                    <div id="health-bar" class="progress-fill health-fill"></div>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-icon">⚡</span>
+                <p>Energy</p>
+                <h3 id="energy">100 / 100</h3>
+                <div class="progress-track">
+                    <div id="energy-bar" class="progress-fill energy-fill"></div>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-icon">⭐</span>
+                <p>Reputation</p>
+                <h3 id="reputation">0</h3>
+            </article>
+        </section>
+
+        <section class="game-layout">
+            <div class="main-column">
+                <section class="panel">
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">TAKE ACTION</span>
+                            <h2>What will you do today?</h2>
+                        </div>
+                    </div>
+
+                    <div class="action-grid">
+                        <button class="action-card" id="work-btn">
+                            <span>💼</span>
+                            <strong>Find Work</strong>
+                            <small>Earn ₦1,500</small>
+                        </button>
+
+                        <button class="action-card" id="food-btn">
+                            <span>🍲</span>
+                            <strong>Buy Food</strong>
+                            <small>Cost: ₦500</small>
+                        </button>
+
+                        <button class="action-card" id="rest-btn">
+                            <span>🛌</span>
+                            <strong>Rest</strong>
+                            <small>Recover energy</small>
+                        </button>
+
+                        <button class="action-card" id="sleep-btn">
+                            <span>🌙</span>
+                            <strong>Sleep</strong>
+                            <small>End your day</small>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">YOUR JOURNEY</span>
+                            <h2>Life Progress</h2>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div>
+                            <span>💼 Career</span>
+                            <strong id="career-level">Level 1</strong>
+                        </div>
+                        <p>Keep working to build experience.</p>
+                    </div>
+
+                    <div class="progress-item">
+                        <div>
+                            <span>🏙️ Life Stage</span>
+                            <strong id="life-stage">Getting Started</strong>
+                        </div>
+                        <p>Your journey begins with what you have.</p>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="side-column">
+                <section class="panel">
+                    <span class="eyebrow">YOUR WORLD</span>
+                    <h2>Coming Soon</h2>
+
+                    <div class="world-item">
+                        <span>🏠</span>
+                        <div>
+                            <strong>Housing & Property</strong>
+                            <p>Find a place to live.</p>
+                        </div>
+                    </div>
+
+                    <div class="world-item">
+                        <span>🏪</span>
+                        <div>
+                            <strong>Businesses</strong>
+                            <p>Build your own enterprise.</p>
+                        </div>
+                    </div>
+
+                    <div class="world-item">
+                        <span>🎓</span>
+                        <div>
+                            <strong>Education</strong>
+                            <p>Learn skills and unlock careers.</p>
+                        </div>
+                    </div>
+
+                    <div class="world-item">
+                        <span>🏛️</span>
+                        <div>
+                            <strong>Politics & Leadership</strong>
+                            <p>One day, lead your state or country.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel notification-panel">
+                    <span class="eyebrow">WORLD NEWS</span>
+                    <h2>Latest Update</h2>
+                    <p id="notification">
+                        Welcome, citizen! Your journey in Nigeria begins today.
+                    </p>
+                </section>
+
+                <section class="panel">
+                    <button id="save-btn" class="primary-button full-width">
+                        Save Progress
+                    </button>
+
+                    <button id="reset-btn" class="danger-button full-width">
+                        Reset Game
+                    </button>
+
+                    <p class="save-note" id="save-status">
+                        Your progress saves in this browser.
+                    </p>
+                </section>
+            </aside>
+        </section>
+
+        <footer>
+            <p>NAIJA LIFE SIMULATOR</p>
+            <p>Built step by step. Powered by imagination. 🇳🇬</p>
+        </footer>
+    </main>
+
+    <script src="game.js"></script>
+</body>
+</html>
