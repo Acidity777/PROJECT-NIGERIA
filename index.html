@@ -1,230 +1,1303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Naija Life Simulator</title>
+<title>Naija Life Simulator</title>
 
-    <meta
-        name="description"
-        content="Build your life, earn money, grow your business and shape your future in Nigeria."
-    >
+<style>
+:root {
+    --green: #087443;
+    --dark: #071a12;
+    --panel: #10271d;
+    --gold: #f5c451;
+    --text: #f4f7f4;
+    --muted: #a8b9ae;
+    --border: #294638;
+    --red: #ef7777;
+}
 
-    <link rel="stylesheet" href="style.css">
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--dark);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(135deg, #075c38, #10271d);
+    padding: 25px 16px;
+    text-align: center;
+    border-bottom: 2px solid var(--gold);
+}
+
+header h1 {
+    margin: 0;
+    font-size: clamp(25px, 5vw, 38px);
+}
+
+header p {
+    color: #d5e8db;
+    margin-bottom: 0;
+}
+
+.container {
+    width: min(1100px, 94%);
+    margin: 24px auto;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+h2, h3 {
+    margin-top: 0;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.gold {
+    color: var(--gold);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 12px;
+}
+
+.stat {
+    background: #091b13;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.stat small {
+    display: block;
+    color: var(--muted);
+}
+
+.stat strong {
+    font-size: 21px;
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+label {
+    display: block;
+    margin: 14px 0 6px;
+    color: #d9e8df;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    background: #08170f;
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    background: var(--green);
+    color: white;
+    border: 0;
+    padding: 12px 15px;
+    border-radius: 9px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.15s;
+}
+
+button:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+button.secondary {
+    background: #263b30;
+}
+
+button.gold-button {
+    background: #b88416;
+    color: #111;
+}
+
+button.danger {
+    background: #853838;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.action-card {
+    background: #091b13;
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: 10px;
+}
+
+.action-card p {
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 42px;
+}
+
+.action-card button {
+    width: 100%;
+}
+
+#gameScreen {
+    display: none;
+}
+
+#message {
+    background: #183e2c;
+    border-left: 4px solid var(--gold);
+    padding: 13px;
+    border-radius: 6px;
+    margin: 15px 0;
+}
+
+#eventLog {
+    padding-left: 20px;
+}
+
+#eventLog li {
+    margin-bottom: 8px;
+    color: #d7e4db;
+}
+
+.progress-track {
+    height: 10px;
+    background: #07140d;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 7px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--gold);
+    transition: width 0.3s;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+@media (max-width: 500px) {
+    .panel {
+        padding: 14px;
+    }
+}
+</style>
 </head>
 
 <body>
-    <header class="topbar">
-        <div class="brand">
-            <span class="brand-icon">🇳🇬</span>
 
-            <div>
-                <h1>NAIJA LIFE</h1>
-                <p>YOUR LIFE. YOUR CHOICES.</p>
-            </div>
-        </div>
+<header>
+    <h1>🇳🇬 Naija Life Simulator</h1>
+    <p>Your life. Your choices. Your Nigeria.</p>
+</header>
 
-        <div class="day-display">
-            <span>IN-GAME DAY</span>
-            <strong id="day">1</strong>
-        </div>
-    </header>
+<main class="container">
 
-    <main class="container">
-        <section class="welcome-panel">
-            <div>
-                <span class="eyebrow">YOUR STORY STARTS HERE</span>
+    <!-- CHARACTER CREATION -->
 
-                <h2>Build your future.</h2>
+    <section id="creationScreen" class="panel">
 
-                <p>
-                    Start small. Work hard. Make decisions.
-                    Build the life you want.
-                </p>
-            </div>
+        <h2>Create Your Citizen</h2>
 
-            <div class="welcome-flag">🇳🇬</div>
-        </section>
+        <p class="muted">
+            Every great story starts somewhere. Create your character
+            and decide how your Nigerian journey begins.
+        </p>
 
-        <section class="profile-card">
-            <div class="avatar">👤</div>
+        <form id="creationForm">
 
-            <div class="profile-details">
-                <span class="eyebrow">PLAYER PROFILE</span>
-                <h2 id="player-name">New Citizen</h2>
-                <p id="occupation">Unemployed</p>
-                <p id="location">Bauchi State, Nigeria</p>
-            </div>
+            <label for="playerName">Character name</label>
+            <input
+                id="playerName"
+                type="text"
+                maxlength="30"
+                placeholder="Enter your character's name"
+                required
+            >
 
-            <button id="change-name-btn" class="secondary-button">
-                Edit Name
+            <label for="age">Age</label>
+            <select id="age">
+                <option value="18">18 years</option>
+                <option value="21">21 years</option>
+                <option value="25">25 years</option>
+                <option value="30">30 years</option>
+                <option value="35">35 years</option>
+            </select>
+
+            <label for="state">Starting state</label>
+            <select id="state">
+                <option>Abia State</option>
+                <option>Adamawa State</option>
+                <option>Akwa Ibom State</option>
+                <option>Anambra State</option>
+                <option>Bauchi State</option>
+                <option>Bayelsa State</option>
+                <option>Benue State</option>
+                <option>Borno State</option>
+                <option>Cross River State</option>
+                <option>Delta State</option>
+                <option>Ebonyi State</option>
+                <option>Edo State</option>
+                <option>Ekiti State</option>
+                <option>Enugu State</option>
+                <option>Gombe State</option>
+                <option>Imo State</option>
+                <option>Jigawa State</option>
+                <option>Kaduna State</option>
+                <option>Kano State</option>
+                <option>Katsina State</option>
+                <option>Kebbi State</option>
+                <option>Kogi State</option>
+                <option>Kwara State</option>
+                <option>Lagos State</option>
+                <option>Nasarawa State</option>
+                <option>Niger State</option>
+                <option>Ogun State</option>
+                <option>Ondo State</option>
+                <option>Osun State</option>
+                <option>Oyo State</option>
+                <option>Plateau State</option>
+                <option>Rivers State</option>
+                <option>Sokoto State</option>
+                <option>Taraba State</option>
+                <option>Yobe State</option>
+                <option>Zamfara State</option>
+                <option>Federal Capital Territory (FCT)</option>
+            </select>
+
+            <label for="background">Your background</label>
+            <select id="background">
+                <option value="graduate">Graduate</option>
+                <option value="student">Student</option>
+                <option value="apprentice">Apprentice</option>
+                <option value="hustler">Self-taught Hustler</option>
+            </select>
+
+            <p class="muted">
+                Different backgrounds will eventually open different
+                opportunities. For now, each background gives you a
+                different starting advantage.
+            </p>
+
+            <button class="gold-button" type="submit">
+                Begin My Journey →
             </button>
-        </section>
 
-        <section class="stats-grid">
-            <article class="stat-card">
-                <span class="stat-icon">💰</span>
-                <p>Cash Balance</p>
-                <h3 id="money">₦5,000</h3>
-            </article>
+        </form>
 
-            <article class="stat-card">
-                <span class="stat-icon">❤️</span>
-                <p>Health</p>
-                <h3 id="health">100 / 100</h3>
-                <div class="progress-track">
-                    <div id="health-bar" class="progress-fill health-fill"></div>
+    </section>
+
+
+    <!-- MAIN GAME -->
+
+    <section id="gameScreen">
+
+        <section class="panel">
+
+            <h2 id="welcomeTitle">Welcome, Citizen!</h2>
+
+            <p id="citizenDescription" class="muted"></p>
+
+            <div class="grid">
+
+                <div class="stat">
+                    <small>💰 Personal Money</small>
+                    <strong id="money">₦5,000</strong>
                 </div>
-            </article>
 
-            <article class="stat-card">
-                <span class="stat-icon">⚡</span>
-                <p>Energy</p>
-                <h3 id="energy">100 / 100</h3>
-                <div class="progress-track">
-                    <div id="energy-bar" class="progress-fill energy-fill"></div>
+                <div class="stat">
+                    <small>❤️ Health</small>
+                    <strong id="health">100/100</strong>
                 </div>
-            </article>
 
-            <article class="stat-card">
-                <span class="stat-icon">⭐</span>
-                <p>Reputation</p>
-                <h3 id="reputation">0</h3>
-            </article>
-        </section>
+                <div class="stat">
+                    <small>⚡ Energy</small>
+                    <strong id="energy">100/100</strong>
+                </div>
 
-        <section class="game-layout">
-            <div class="main-column">
-                <section class="panel">
-                    <div class="section-heading">
-                        <div>
-                            <span class="eyebrow">TAKE ACTION</span>
-                            <h2>What will you do today?</h2>
-                        </div>
-                    </div>
+                <div class="stat">
+                    <small>⭐ Reputation</small>
+                    <strong id="reputation">0</strong>
+                </div>
 
-                    <div class="action-grid">
-                        <button class="action-card" id="work-btn">
-                            <span>💼</span>
-                            <strong>Find Work</strong>
-                            <small>Earn ₦1,500</small>
-                        </button>
+                <div class="stat">
+                    <small>📚 Education</small>
+                    <strong id="education">Basic</strong>
+                </div>
 
-                        <button class="action-card" id="food-btn">
-                            <span>🍲</span>
-                            <strong>Buy Food</strong>
-                            <small>Cost: ₦500</small>
-                        </button>
+                <div class="stat">
+                    <small>📅 Day</small>
+                    <strong id="day">1</strong>
+                </div>
 
-                        <button class="action-card" id="rest-btn">
-                            <span>🛌</span>
-                            <strong>Rest</strong>
-                            <small>Recover energy</small>
-                        </button>
-
-                        <button class="action-card" id="sleep-btn">
-                            <span>🌙</span>
-                            <strong>Sleep</strong>
-                            <small>End your day</small>
-                        </button>
-                    </div>
-                </section>
-
-                <section class="panel">
-                    <div class="section-heading">
-                        <div>
-                            <span class="eyebrow">YOUR JOURNEY</span>
-                            <h2>Life Progress</h2>
-                        </div>
-                    </div>
-
-                    <div class="progress-item">
-                        <div>
-                            <span>💼 Career</span>
-                            <strong id="career-level">Level 1</strong>
-                        </div>
-                        <p>Keep working to build experience.</p>
-                    </div>
-
-                    <div class="progress-item">
-                        <div>
-                            <span>🏙️ Life Stage</span>
-                            <strong id="life-stage">Getting Started</strong>
-                        </div>
-                        <p>Your journey begins with what you have.</p>
-                    </div>
-                </section>
             </div>
 
-            <aside class="side-column">
-                <section class="panel">
-                    <span class="eyebrow">YOUR WORLD</span>
-                    <h2>Coming Soon</h2>
-
-                    <div class="world-item">
-                        <span>🏠</span>
-                        <div>
-                            <strong>Housing & Property</strong>
-                            <p>Find a place to live.</p>
-                        </div>
-                    </div>
-
-                    <div class="world-item">
-                        <span>🏪</span>
-                        <div>
-                            <strong>Businesses</strong>
-                            <p>Build your own enterprise.</p>
-                        </div>
-                    </div>
-
-                    <div class="world-item">
-                        <span>🎓</span>
-                        <div>
-                            <strong>Education</strong>
-                            <p>Learn skills and unlock careers.</p>
-                        </div>
-                    </div>
-
-                    <div class="world-item">
-                        <span>🏛️</span>
-                        <div>
-                            <strong>Politics & Leadership</strong>
-                            <p>One day, lead your state or country.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="panel notification-panel">
-                    <span class="eyebrow">WORLD NEWS</span>
-                    <h2>Latest Update</h2>
-                    <p id="notification">
-                        Welcome, citizen! Your journey in Nigeria begins today.
-                    </p>
-                </section>
-
-                <section class="panel">
-                    <button id="save-btn" class="primary-button full-width">
-                        Save Progress
-                    </button>
-
-                    <button id="reset-btn" class="danger-button full-width">
-                        Reset Game
-                    </button>
-
-                    <p class="save-note" id="save-status">
-                        Your progress saves in this browser.
-                    </p>
-                </section>
-            </aside>
         </section>
 
-        <footer>
-            <p>NAIJA LIFE SIMULATOR</p>
-            <p>Built step by step. Powered by imagination. 🇳🇬</p>
-        </footer>
-    </main>
 
-    <script src="game.js"></script>
+        <!-- LIFE PROGRESSION -->
+
+        <section class="panel">
+
+            <h2>Your Progress</h2>
+
+            <p>
+                Career:
+                <strong id="career" class="gold">Unemployed</strong>
+            </p>
+
+            <p>
+                Political journey:
+                <strong id="politicalStatus" class="gold">
+                    Ordinary Citizen
+                </strong>
+            </p>
+
+            <p>
+                Community influence:
+                <strong id="influence">0</strong>
+            </p>
+
+            <p class="muted" id="nextGoal"></p>
+
+            <div class="progress-track">
+                <div id="progressBar" class="progress-fill"></div>
+            </div>
+
+        </section>
+
+
+        <!-- ACTIONS -->
+
+        <section class="panel">
+
+            <h2>What Will You Do Today?</h2>
+
+            <p class="muted">
+                Your actions cost time and energy. Choose wisely.
+                You can take one main action per day.
+            </p>
+
+            <div class="actions">
+
+                <div class="action-card">
+                    <h3>💼 Find Work</h3>
+                    <p>
+                        Earn money through honest work.
+                        Education may improve your opportunities.
+                    </p>
+                    <button onclick="takeAction('work')">
+                        Find Work
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <h3>📖 Study</h3>
+                    <p>
+                        Improve your skills and unlock better
+                        opportunities.
+                    </p>
+                    <button onclick="takeAction('study')">
+                        Study
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <h3>🤝 Help Citizens</h3>
+                    <p>
+                        Support your community and build
+                        public trust.
+                    </p>
+                    <button onclick="takeAction('community')">
+                        Serve Community
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <h3>🛍️ Small Hustle</h3>
+                    <p>
+                        Try a small business activity.
+                        Results are not guaranteed.
+                    </p>
+                    <button onclick="takeAction('hustle')">
+                        Start Hustling
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <h3>🍲 Buy Food</h3>
+                    <p>
+                        Spend money to recover health
+                        and a little energy.
+                    </p>
+                    <button onclick="takeAction('food')">
+                        Buy Food
+                    </button>
+                </div>
+
+                <div class="action-card">
+                    <h3>😴 Rest</h3>
+                    <p>
+                        Recover energy so you can
+                        continue your journey.
+                    </p>
+                    <button onclick="takeAction('rest')">
+                        Rest
+                    </button>
+                </div>
+
+            </div>
+
+            <div id="message" role="status" aria-live="polite">
+                Your story begins today.
+            </div>
+
+            <button class="gold-button" onclick="nextDay()">
+                🌅 End Day & Continue →
+            </button>
+
+        </section>
+
+
+        <!-- CITIZEN SIMULATION -->
+
+        <section class="panel">
+
+            <h2>🇳🇬 The Citizens</h2>
+
+            <p class="muted">
+                Nigeria is made up of people with different needs.
+                Your choices can affect how they see you.
+                These are simplified game simulations, not real-world
+                statistics.
+            </p>
+
+            <div class="grid">
+
+                <div class="stat">
+                    <small>🏠 Households</small>
+                    <strong id="householdMood">50/100</strong>
+                    <div class="progress-track">
+                        <div id="householdBar" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <small>🎓 Students & Graduates</small>
+                    <strong id="studentMood">50/100</strong>
+                    <div class="progress-track">
+                        <div id="studentBar" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <small>🏪 Business Owners</small>
+                    <strong id="businessMood">50/100</strong>
+                    <div class="progress-track">
+                        <div id="businessBar" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <small>🌾 Rural Communities</small>
+                    <strong id="ruralMood">50/100</strong>
+                    <div class="progress-track">
+                        <div id="ruralBar" class="progress-fill"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="muted">
+                These groups will eventually respond to jobs, education,
+                infrastructure, prices, public services and government
+                decisions.
+            </p>
+
+        </section>
+
+
+        <!-- LEADERSHIP -->
+
+        <section class="panel">
+
+            <h2>🏛️ Your Leadership Journey</h2>
+
+            <p id="leadershipDescription">
+                You are starting as an ordinary citizen.
+                Build your reputation and serve your community.
+            </p>
+
+            <button
+                id="leadershipButton"
+                class="gold-button"
+                onclick="runElection()"
+                disabled
+            >
+                Run for Community Leader
+            </button>
+
+            <p class="muted">
+                Eligibility for this first prototype requires Day 5
+                or later and at least 20 reputation.
+                This is a fictional gameplay milestone, not a statement
+                of actual Nigerian electoral law.
+            </p>
+
+            <div id="electionResult"></div>
+
+        </section>
+
+
+        <!-- EVENT LOG -->
+
+        <section class="panel">
+
+            <h2>📜 Your Life Story</h2>
+
+            <p class="muted">
+                Important moments from your journey appear here.
+            </p>
+
+            <ul id="eventLog"></ul>
+
+        </section>
+
+
+        <!-- SAVE CONTROLS -->
+
+        <section class="panel">
+
+            <h2>Game Controls</h2>
+
+            <p class="muted">
+                Your game saves automatically in this browser.
+                Clearing browser storage may erase this save.
+            </p>
+
+            <div class="actions">
+
+                <button class="secondary" onclick="saveGame(true)">
+                    💾 Save Game
+                </button>
+
+                <button class="secondary" onclick="loadGame()">
+                    📂 Load Saved Game
+                </button>
+
+                <button class="danger" onclick="resetGame()">
+                    🔄 Start New Life
+                </button>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+<footer>
+    Naija Life Simulator · Early Development Prototype
+    <br>
+    Built step by step. Your decisions shape your journey. 🇳🇬
+</footer>
+
+
+<script>
+"use strict";
+
+const SAVE_KEY = "naijaLifeSimulator_v2";
+
+const state = {
+    player: null,
+    day: 1,
+    money: 5000,
+    health: 100,
+    energy: 100,
+    reputation: 0,
+    education: 0,
+    career: "Unemployed",
+    influence: 0,
+    politicalStatus: "Ordinary Citizen",
+    actedToday: false,
+    electionHeld: false,
+    communityLeader: false,
+    log: [],
+    citizens: {
+        households: 50,
+        students: 50,
+        businesses: 50,
+        rural: 50
+    }
+};
+
+const backgrounds = {
+    graduate: {
+        label: "Graduate",
+        education: 2,
+        money: 5000,
+        description: "You begin with a qualification and a chance to pursue skilled work."
+    },
+    student: {
+        label: "Student",
+        education: 1,
+        money: 5000,
+        description: "You are building your future while balancing your daily needs."
+    },
+    apprentice: {
+        label: "Apprentice",
+        education: 1,
+        money: 6500,
+        description: "You have some practical training and a little extra starting money."
+    },
+    hustler: {
+        label: "Self-taught Hustler",
+        education: 0,
+        money: 7000,
+        description: "You rely on practical learning, initiative and your ability to find opportunities."
+    }
+};
+
+function clamp(value, min = 0, max = 100) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function formatMoney(amount) {
+    return "₦" + Math.round(amount).toLocaleString("en-NG");
+}
+
+function addLog(text) {
+    state.log.unshift("Day " + state.day + ": " + text);
+
+    if (state.log.length > 30) {
+        state.log.pop();
+    }
+
+    renderLog();
+}
+
+function changeCitizenMood(group, amount) {
+    state.citizens[group] = clamp(
+        state.citizens[group] + amount
+    );
+}
+
+function startGame(name, age, location, background) {
+    const profile = backgrounds[background];
+
+    state.player = {
+        name,
+        age,
+        location,
+        background,
+        backgroundLabel: profile.label
+    };
+
+    state.day = 1;
+    state.money = profile.money;
+    state.health = 100;
+    state.energy = 100;
+    state.reputation = 0;
+    state.education = profile.education;
+    state.career = "Unemployed";
+    state.influence = 0;
+    state.politicalStatus = "Ordinary Citizen";
+    state.actedToday = false;
+    state.electionHeld = false;
+    state.communityLeader = false;
+    state.log = [];
+
+    state.citizens = {
+        households: 50,
+        students: 50,
+        businesses: 50,
+        rural: 50
+    };
+
+    document.getElementById("creationScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+
+    addLog(
+        name + " begins a new life in " +
+        location + " as a " + profile.label + "."
+    );
+
+    addLog("You start with " + formatMoney(state.money) + ".");
+
+    render();
+    saveGame(false);
+}
+
+document.getElementById("creationForm").addEventListener(
+    "submit",
+    function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById("playerName")
+            .value.trim();
+
+        if (!name) {
+            alert("Please enter your character's name.");
+            return;
+        }
+
+        startGame(
+            name,
+            Number(document.getElementById("age").value),
+            document.getElementById("state").value,
+            document.getElementById("background").value
+        );
+    }
+);
+
+function takeAction(action) {
+    if (!state.player) return;
+
+    if (state.actedToday) {
+        showMessage(
+            "You have already taken your main action today. " +
+            "End the day to continue."
+        );
+        return;
+    }
+
+    if (action !== "rest" && state.energy < 15) {
+        showMessage(
+            "You are too tired for that action. Rest first."
+        );
+        return;
+    }
+
+    if (state.health <= 0) {
+        showMessage(
+            "Your health is critically low. Buy food before doing anything else."
+        );
+        return;
+    }
+
+    switch (action) {
+
+        case "work": {
+            let earnings = 1500 + state.education * 400;
+
+            let energyCost = 25;
+
+            if (state.career === "Unemployed") {
+                state.career = state.education >= 2
+                    ? "Entry-Level Professional"
+                    : "Casual Worker";
+            }
+
+            state.money += earnings;
+            state.energy = clamp(state.energy - energyCost);
+
+            addLog(
+                "You worked and earned " +
+                formatMoney(earnings) + "."
+            );
+
+            changeCitizenMood("households", 1);
+            break;
+        }
+
+        case "study": {
+            state.energy = clamp(state.energy - 20);
+
+            if (state.education < 3) {
+                state.education++;
+                addLog(
+                    "You studied and improved your education level."
+                );
+            } else {
+                state.reputation = clamp(state.reputation + 1, 0, 100);
+                addLog(
+                    "You practised your skills and strengthened your knowledge."
+                );
+            }
+
+            changeCitizenMood("students", 2);
+            break;
+        }
+
+        case "community": {
+            state.energy = clamp(state.energy - 20);
+
+            state.reputation = clamp(state.reputation + 6, 0, 100);
+            state.influence = clamp(state.influence + 5, 0, 100);
+
+            addLog(
+                "You helped your community. Your reputation and influence increased."
+            );
+
+            changeCitizenMood("households", 3);
+            changeCitizenMood("rural", 3);
+            break;
+        }
+
+        case "hustle": {
+            state.energy = clamp(state.energy - 25);
+
+            const success = Math.random() < 0.70;
+
+            if (success) {
+                const earnings = 1000 + Math.floor(Math.random() * 2501);
+
+                state.money += earnings;
+                state.reputation = clamp(state.reputation + 1, 0, 100);
+
+                addLog(
+                    "Your small hustle succeeded. You earned " +
+                    formatMoney(earnings) + "."
+                );
+
+                changeCitizenMood("businesses", 2);
+            } else {
+                const loss = Math.min(
+                    state.money,
+                    500 + Math.floor(Math.random() * 501)
+                );
+
+                state.money -= loss;
+
+                addLog(
+                    "Your hustle had a bad day. You lost " +
+                    formatMoney(loss) + "."
+                );
+            }
+
+            break;
+        }
+
+        case "food": {
+            if (state.money < 500) {
+                showMessage(
+                    "You need at least ₦500 to buy food."
+                );
+                return;
+            }
+
+            state.money -= 500;
+            state.health = clamp(state.health + 10);
+            state.energy = clamp(state.energy + 5);
+
+            addLog(
+                "You bought food for ₦500 and recovered some health and energy."
+            );
+
+            changeCitizenMood("households", 1);
+            break;
+        }
+
+        case "rest": {
+            state.energy = clamp(state.energy + 50);
+
+            addLog(
+                "You rested and recovered energy."
+            );
+
+            break;
+        }
+
+        default:
+            return;
+    }
+
+    state.actedToday = true;
+
+    render();
+    saveGame(false);
+}
+
+function nextDay() {
+    if (!state.player) return;
+
+    if (!state.actedToday) {
+        const continueAnyway = confirm(
+            "You have not taken an action today. " +
+            "Do you still want to end the day?"
+        );
+
+        if (!continueAnyway) return;
+    }
+
+    state.day++;
+
+    // A new day restores a small amount of energy.
+    state.energy = clamp(state.energy + 20);
+
+    // Basic needs slowly affect the character.
+    if (state.energy < 20) {
+        state.health = clamp(state.health - 5);
+
+        addLog(
+            "Exhaustion affected your health. Try to rest more often."
+        );
+    }
+
+    if (state.money === 0) {
+        changeCitizenMood("households", -1);
+    }
+
+    // Small simulated changes in citizen sentiment.
+    // These are gameplay rules, not actual public-opinion data.
+    for (const group of Object.keys(state.citizens)) {
+        const change = Math.random() < 0.5 ? -1 : 1;
+
+        state.citizens[group] = clamp(
+            state.citizens[group] + change
+        );
+    }
+
+    state.actedToday = false;
+
+    addLog("A new day begins.");
+
+    render();
+    saveGame(false);
+}
+
+function getCitizenTrust() {
+    const c = state.citizens;
+
+    return Math.round(
+        (c.households +
+         c.students +
+         c.businesses +
+         c.rural) / 4
+    );
+}
+
+function runElection() {
+    if (!state.player) return;
+
+    if (state.electionHeld) {
+        showMessage(
+            "You have already completed this first community election."
+        );
+        return;
+    }
+
+    if (state.day < 5 || state.reputation < 20) {
+        showMessage(
+            "You need to reach Day 5 and build at least 20 reputation first."
+        );
+        return;
+    }
+
+    const trust = getCitizenTrust();
+
+    // A simplified fictional election model.
+    // Wealth is deliberately not a direct guarantee of victory.
+    const playerScore =
+        state.reputation * 0.45 +
+        state.influence * 0.25 +
+        trust * 0.20 +
+        state.education * 3;
+
+    const rivalScore = 20 + Math.random() * 35;
+
+    state.electionHeld = true;
+
+    const result = document.getElementById("electionResult");
+
+    if (playerScore >= rivalScore) {
+        state.communityLeader = true;
+        state.politicalStatus = "Community Leader";
+
+        state.reputation = clamp(state.reputation + 10, 0, 100);
+
+        result.innerHTML =
+            '<div class="panel">' +
+            '<h3 class="gold">🎉 You Won!</h3>' +
+            '<p>You have become the community leader in this ' +
+            'fictional election.</p>' +
+            '<p>Your next challenge is to turn public trust into ' +
+            'visible improvements for citizens.</p>' +
+            '</div>';
+
+        addLog(
+            "You won the community leadership election."
+        );
+
+        showMessage(
+            "Congratulations! You won through reputation, influence and citizen trust."
+        );
+
+    } else {
+        result.innerHTML =
+            '<div class="panel">' +
+            '<h3>Election Result</h3>' +
+            '<p>You lost this election, but your political journey ' +
+            'does not have to end here.</p>' +
+            '<p>Future versions can let you campaign again, build ' +
+            'alliances and respond to citizen concerns.</p>' +
+            '</div>';
+
+        addLog(
+            "You lost the community leadership election. Your journey continues."
+        );
+
+        showMessage(
+            "You did not win this time. Learn from the result and keep building your reputation."
+        );
+    }
+
+    render();
+    saveGame(false);
+}
+
+function showMessage(message) {
+    document.getElementById("message").textContent = message;
+}
+
+function renderLog() {
+    const list = document.getElementById("eventLog");
+
+    list.innerHTML = "";
+
+    for (const entry of state.log) {
+        const item = document.createElement("li");
+        item.textContent = entry;
+        list.appendChild(item);
+    }
+}
+
+function setProgress(id, value) {
+    document.getElementById(id).style.width =
+        clamp(value) + "%";
+}
+
+function render() {
+    if (!state.player) return;
+
+    document.getElementById("welcomeTitle").textContent =
+        "Welcome, " + state.player.name + "!";
+
+    document.getElementById("citizenDescription").textContent =
+        "Age " + state.player.age +
+        " · " + state.player.location +
+        " · " + state.player.backgroundLabel;
+
+    document.getElementById("money").textContent =
+        formatMoney(state.money);
+
+    document.getElementById("health").textContent =
+        state.health + "/100";
+
+    document.getElementById("energy").textContent =
+        state.energy + "/100";
+
+    document.getElementById("reputation").textContent =
+        state.reputation + "/100";
+
+    const educationLabels = [
+        "Basic",
+        "Some Training",
+        "Qualified",
+        "Advanced"
+    ];
+
+    document.getElementById("education").textContent =
+        educationLabels[Math.min(state.education, 3)];
+
+    document.getElementById("day").textContent =
+        state.day;
+
+    document.getElementById("career").textContent =
+        state.career;
+
+    document.getElementById("politicalStatus").textContent =
+        state.politicalStatus;
+
+    document.getElementById("influence").textContent =
+        state.influence + "/100";
+
+    document.getElementById("householdMood").textContent =
+        state.citizens.households + "/100";
+
+    document.getElementById("studentMood").textContent =
+        state.citizens.students + "/100";
+
+    document.getElementById("businessMood").textContent =
+        state.citizens.businesses + "/100";
+
+    document.getElementById("ruralMood").textContent =
+        state.citizens.rural + "/100";
+
+    setProgress("householdBar", state.citizens.households);
+    setProgress("studentBar", state.citizens.students);
+    setProgress("businessBar", state.citizens.businesses);
+    setProgress("ruralBar", state.citizens.rural);
+
+    const eligible =
+        state.day >= 5 &&
+        state.reputation >= 20 &&
+        !state.electionHeld;
+
+    document.getElementById("leadershipButton").disabled =
+        !eligible;
+
+    if (state.communityLeader) {
+        document.getElementById("leadershipDescription").textContent =
+            "You are now a community leader! Future updates will let " +
+            "you manage projects, respond to citizen demands and build " +
+            "a path towards higher office.";
+
+        document.getElementById("nextGoal").textContent =
+            "Next milestone: manage your community and earn citizens' trust.";
+
+        setProgress("progressBar", state.reputation);
+
+    } else {
+        document.getElementById("nextGoal").textContent =
+            "Build at least 20 reputation and reach Day 5 to unlock " +
+            "your first community election.";
+
+        setProgress(
+            "progressBar",
+            Math.min(100, state.reputation * 5)
+        );
+    }
+
+    if (state.actedToday) {
+        showMessage(
+            "You have completed today's main action. End the day when you're ready."
+        );
+    } else {
+        showMessage(
+            "A new day is available. Choose your next action."
+        );
+    }
+
+    renderLog();
+}
+
+function saveGame(showConfirmation) {
+    if (!state.player) {
+        if (showConfirmation) {
+            alert("Create a character before saving.");
+        }
+        return;
+    }
+
+    try {
+        localStorage.setItem(
+            SAVE_KEY,
+            JSON.stringify(state)
+        );
+
+        if (showConfirmation) {
+            alert("Your game has been saved in this browser.");
+        }
+    } catch (error) {
+        if (showConfirmation) {
+            alert("The game could not be saved in this browser.");
+        }
+    }
+}
+
+function loadGame() {
+    try {
+        const saved = localStorage.getItem(SAVE_KEY);
+
+        if (!saved) {
+            alert("No saved game was found in this browser.");
+            return;
+        }
+
+        const parsed = JSON.parse(saved);
+
+        if (!parsed.player || !parsed.citizens || !Array.isArray(parsed.log)) {
+            throw new Error("Invalid save data");
+        }
+
+        Object.assign(state, parsed);
+
+        document.getElementById("creationScreen").style.display =
+            "none";
+
+        document.getElementById("gameScreen").style.display =
+            "block";
+
+        render();
+
+        showMessage("Your saved game has been loaded.");
+
+    } catch (error) {
+        alert(
+            "The saved game could not be loaded. " +
+            "It may be damaged or incompatible with this version."
+        );
+    }
+}
+
+function resetGame() {
+    const confirmed = confirm(
+        "Start a completely new life? " +
+        "This will erase the current save for this game in this browser."
+    );
+
+    if (!confirmed) return;
+
+    localStorage.removeItem(SAVE_KEY);
+
+    location.reload();
+}
+
+// Automatically offer the previous local save when the game opens.
+(function checkForSave() {
+    const saved = localStorage.getItem(SAVE_KEY);
+
+    if (saved) {
+        const resume = confirm(
+            "A saved life was found. Would you like to continue it?"
+        );
+
+        if (resume) {
+            loadGame();
+        }
+    }
+})();
+</script>
+
 </body>
 </html>
