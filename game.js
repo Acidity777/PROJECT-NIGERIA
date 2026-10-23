@@ -9,7 +9,7 @@ const SAVE_KEY = "naijaLifeSimulatorSave_v1";
 
 const STARTING_PLAYER = {
     name: "New Citizen",
-    location: "Bauchi State, Nigeria",
+    location: "chose by player",
     occupation: "Unemployed",
     day: 1,
     money: 5000,
