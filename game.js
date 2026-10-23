@@ -1,290 +1,293 @@
-"use strict";
+// ============================================
+// NAIJA LIFE SIMULATOR — LOCATION INTERACTIONS
+// First gameplay expansion
+// ============================================
 
-// ==========================================
-// NAIJA LIFE SIMULATOR
-// Version 0.1.0
-// ==========================================
-
-const SAVE_KEY = "naijaLifeSimulatorSave_v1";
-
-const STARTING_PLAYER = {
-    name: "New Citizen",
-    location: "chose by player",
-    occupation: "Unemployed",
-    day: 1,
-    money: 5000,
-    health: 100,
-    energy: 100,
-    reputation: 0,
-    careerXP: 0,
-    meals: 0
-};
-
-let player = loadGame() || { ...STARTING_PLAYER };
-
-function loadGame() {
-    try {
-        const savedData = localStorage.getItem(SAVE_KEY);
-
-        if (!savedData) {
-            return null;
-        }
-
-        const parsedData = JSON.parse(savedData);
-
-        if (
-            !parsedData ||
-            typeof parsedData !== "object" ||
-            !Number.isFinite(parsedData.money) ||
-            !Number.isFinite(parsedData.health) ||
-            !Number.isFinite(parsedData.energy) ||
-            !Number.isFinite(parsedData.day)
-        ) {
-            return null;
-        }
-
-        return {
-            ...STARTING_PLAYER,
-            ...parsedData
-        };
-    } catch (error) {
-        console.error("Could not load saved game:", error);
-        return null;
+// Add useful locations to every playable state.
+Object.values(playable).forEach(place => {
+  [
+    "Market",
+    "Business District",
+    "Community Centre",
+    "Government Office",
+    "Police Station"
+  ].forEach(location => {
+    if (!place.locations.includes(location)) {
+      place.locations.push(location);
     }
+  });
+});
+
+// Give each location a meaningful description.
+function locationDesc(name) {
+  if (name.includes("Market")) {
+    return "Buy food, manage your money, and explore small trading opportunities.";
+  }
+
+  if (name.includes("Job Centre")) {
+    return "Apply for jobs. Your education, experience, and skills affect your chances.";
+  }
+
+  if (
+    name.includes("Education") ||
+    name.includes("Skills") ||
+    name.includes("Training") ||
+    name.includes("Apprenticeship")
+  ) {
+    return "Study or train to improve your qualifications and practical abilities.";
+  }
+
+  if (name.includes("Community")) {
+    return "Help residents, improve public trust, and build community connections.";
+  }
+
+  if (name.includes("Business")) {
+    return "Explore small-business opportunities and develop your entrepreneurial skills.";
+  }
+
+  if (name.includes("Government")) {
+    return "Raise community issues, participate in civic activities, and build political influence.";
+  }
+
+  if (name.includes("Police")) {
+    return "Report incidents and learn about the consequences of unlawful actions.";
+  }
+
+  if (name.includes("Property")) {
+    return "Property ownership and management will be expanded in a later update.";
+  }
+
+  return "Visit this location to explore opportunities in your community.";
 }
 
-function saveGame(showMessage = true) {
-    try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(player));
+// Connect location buttons to gameplay.
+function openLocation(name) {
+  if (!g) return;
 
-        if (showMessage) {
-            updateNotification("Your progress has been saved on this device.");
-            document.getElementById("save-status").textContent =
-                "Progress saved successfully!";
-        }
-
-        return true;
-    } catch (error) {
-        console.error("Could not save game:", error);
-
-        document.getElementById("save-status").textContent =
-            "Saving failed. Your browser storage may be unavailable.";
-
-        updateNotification("We could not save your progress. Please check your browser.");
-
-        return false;
-    }
-}
-
-function formatMoney(amount) {
-    return new Intl.NumberFormat("en-NG", {
-        style: "currency",
-        currency: "NGN",
-        maximumFractionDigits: 0
-    }).format(amount);
-}
-
-function updateNotification(message) {
-    document.getElementById("notification").textContent = message;
-}
-
-function renderGame() {
-    document.getElementById("player-name").textContent = player.name;
-    document.getElementById("occupation").textContent = player.occupation;
-    document.getElementById("location").textContent = player.location;
-
-    document.getElementById("day").textContent = player.day;
-    document.getElementById("money").textContent = formatMoney(player.money);
-
-    document.getElementById("health").textContent =
-        `${player.health} / 100`;
-
-    document.getElementById("energy").textContent =
-        `${player.energy} / 100`;
-
-    document.getElementById("reputation").textContent = player.reputation;
-
-    document.getElementById("health-bar").style.width =
-        `${player.health}%`;
-
-    document.getElementById("energy-bar").style.width =
-        `${player.energy}%`;
-
-    document.getElementById("career-level").textContent =
-        `Level ${Math.floor(player.careerXP / 5) + 1}`;
-
-    let stage = "Getting Started";
-
-    if (player.money >= 100000) {
-        stage = "Building Wealth";
-    } else if (player.money >= 25000) {
-        stage = "Finding Your Feet";
-    }
-
-    document.getElementById("life-stage").textContent = stage;
-
-    document.getElementById("work-btn").disabled =
-        player.energy < 25 || player.health <= 0;
-
-    document.getElementById("food-btn").disabled =
-        player.money < 500 || player.health <= 0;
-
-    document.getElementById("rest-btn").disabled =
-        player.energy >= 100 || player.health <= 0;
-
-    document.getElementById("sleep-btn").disabled =
-        player.health <= 0;
-}
-
-function performWork() {
-    if (player.health <= 0) {
-        updateNotification("Your health is too low. Rest and recover first.");
-        return;
-    }
-
-    if (player.energy < 25) {
-        updateNotification("You're too tired to work. Rest or sleep first.");
-        return;
-    }
-
-    player.money += 1500;
-    player.energy -= 25;
-    player.careerXP += 1;
-
-    updateNotification(
-        "You completed a day's job and earned ₦1,500. Keep building your future!"
+  // MARKET
+  if (name.includes("Market")) {
+    const choice = prompt(
+      "NEIGHBOURHOOD MARKET\n\n" +
+      "1 = Buy food for ₦500\n" +
+      "2 = Try a hustle\n" +
+      "3 = Leave the market\n\n" +
+      "Enter 1, 2, or 3:"
     );
 
-    saveGame(false);
-    renderGame();
-}
-
-function buyFood() {
-    if (player.health <= 0) {
-        updateNotification("Your health is too low. Recover before continuing.");
-        return;
+    if (choice === "1") {
+      action("food");
+    } else if (choice === "2") {
+      action("hustle");
+    } else {
+      say("You left the market without making a purchase.");
     }
 
-    if (player.money < 500) {
-        updateNotification("You don't have enough money to buy food.");
-        return;
-    }
+    return;
+  }
 
-    player.money -= 500;
-    player.health = Math.min(100, player.health + 10);
-    player.energy = Math.min(100, player.energy + 5);
-    player.meals += 1;
+  // JOB CENTRE
+  if (name.includes("Job Centre")) {
+    action("work");
+    return;
+  }
 
-    updateNotification(
-        "You bought a meal for ₦500. Your health and energy improved."
+  // EDUCATION AND TRAINING
+  if (
+    name.includes("Education") ||
+    name.includes("Skills") ||
+    name.includes("Training") ||
+    name.includes("Apprenticeship")
+  ) {
+    action("study");
+    return;
+  }
+
+  // COMMUNITY CENTRE
+  if (name.includes("Community")) {
+    action("community");
+    return;
+  }
+
+  // BUSINESS DISTRICT
+  if (name.includes("Business")) {
+    const choice = prompt(
+      "BUSINESS DISTRICT\n\n" +
+      "Your current money: ₦" +
+      Math.round(g.money).toLocaleString("en-NG") +
+      "\n\n" +
+      "1 = Start a small trading business (₦2,000)\n" +
+      "2 = Check your business\n" +
+      "3 = Leave\n\n" +
+      "Enter 1, 2, or 3:"
     );
 
-    saveGame(false);
-    renderGame();
-}
-
-function rest() {
-    if (player.health <= 0) {
-        updateNotification("Your health is too low. Sleep to recover.");
+    if (choice === "1") {
+      if (g.acted) {
+        say("You've used today's main action. Finish the day before starting a business.");
         return;
-    }
+      }
 
-    if (player.energy >= 100) {
-        updateNotification("You're already fully rested.");
+      if (g.money < 2000) {
+        say("You need ₦2,000 to start this small business.");
         return;
+      }
+
+      g.money -= 2000;
+
+      g.business = g.business || {
+        started: false,
+        capital: 0,
+        daysOperated: 0
+      };
+
+      if (g.business.started) {
+        g.money += 2000;
+        say("You already own a business. Visit again to manage it.");
+        return;
+      }
+
+      g.business.started = true;
+      g.business.capital = 2000;
+      g.business.daysOperated = 0;
+
+      g.career = "Small Business Owner";
+      g.rep = clamp(g.rep + 2);
+      g.influence += 1;
+      g.acted = true;
+
+      logEvent("Opened a small trading business with ₦2,000 capital.");
+
+      say(
+        "Your small business is open! " +
+        "You invested ₦2,000. Business income and operating costs " +
+        "will be developed in the next business-system update."
+      );
+
+      render();
+      save();
+    } else if (choice === "2") {
+      if (g.business && g.business.started) {
+        say(
+          "Your business is open. Initial capital: ₦" +
+          Math.round(g.business.capital).toLocaleString("en-NG") +
+          ". Daily revenue is not implemented yet."
+        );
+      } else {
+        say("You do not own a business yet. You can start one with ₦2,000.");
+      }
+    } else {
+      say("You left the Business District.");
     }
 
-    player.energy = Math.min(100, player.energy + 50);
+    return;
+  }
 
-    updateNotification("You took a break and recovered energy.");
-
-    saveGame(false);
-    renderGame();
-}
-
-function sleep() {
-    player.day += 1;
-
-    player.energy = 100;
-
-    if (player.health > 0) {
-        player.health = Math.min(100, player.health + 10);
-    }
-
-    updateNotification(
-        `A new day begins! It is now Day ${player.day}. What will you do next?`
+  // GOVERNMENT OFFICE
+  if (name.includes("Government")) {
+    const choice = prompt(
+      "GOVERNMENT OFFICE\n\n" +
+      "1 = Submit a community petition\n" +
+      "2 = Check your political status\n" +
+      "3 = Leave\n\n" +
+      "Enter 1, 2, or 3:"
     );
 
-    saveGame(false);
-    renderGame();
-}
-
-function changePlayerName() {
-    const newName = prompt("What should your character be called?");
-
-    if (newName === null) {
+    if (choice === "1") {
+      if (g.acted) {
+        say("You've used today's main action. Finish the day first.");
         return;
+      }
+
+      if (g.energy < 10) {
+        say("You are too tired to prepare a petition. Rest first.");
+        return;
+      }
+
+      g.energy = clamp(g.energy - 10);
+      g.rep = clamp(g.rep + 3);
+      g.influence += 2;
+      g.acted = true;
+
+      logEvent("Submitted a community petition at the Government Office.");
+
+      say(
+        "Your petition has been submitted. " +
+        "Your reputation and political influence increased. " +
+        "A full government-response system is still to be developed."
+      );
+
+      render();
+      save();
+    } else if (choice === "2") {
+      say(
+        "Political status: " + g.political +
+        ". Reputation: " + g.rep +
+        "/100. Community Leader eligibility begins on Day 5 " +
+        "with at least 20 reputation."
+      );
+    } else {
+      say("You left the Government Office.");
     }
 
-    const cleanedName = newName.trim();
+    return;
+  }
 
-    if (!cleanedName) {
-        updateNotification("Your character's name cannot be empty.");
-        return;
-    }
-
-    player.name = cleanedName.slice(0, 30);
-
-    updateNotification(`Welcome to your new chapter, ${player.name}!`);
-
-    saveGame(false);
-    renderGame();
-}
-
-function resetGame() {
-    const confirmed = confirm(
-        "Are you sure you want to reset your game? Your saved progress on this browser will be lost."
+  // POLICE STATION
+  if (name.includes("Police")) {
+    const choice = prompt(
+      "POLICE STATION\n\n" +
+      "1 = Report a neighbourhood problem\n" +
+      "2 = Review your current status\n" +
+      "3 = Leave\n\n" +
+      "Enter 1, 2, or 3:"
     );
 
-    if (!confirmed) {
+    if (choice === "1") {
+      if (g.acted) {
+        say("You've used today's main action. Finish the day first.");
         return;
+      }
+
+      if (g.energy < 5) {
+        say("You are too tired to make a report. Rest first.");
+        return;
+      }
+
+      g.energy = clamp(g.energy - 5);
+      g.rep = clamp(g.rep + 2);
+      g.influence += 1;
+      g.citizens.households = clamp(g.citizens.households + 2);
+
+      g.acted = true;
+
+      logEvent("Reported a neighbourhood problem at the Police Station.");
+
+      say(
+        "Your report has been recorded. " +
+        "Community confidence improved slightly. " +
+        "Investigations, arrests, and crime consequences " +
+        "will require a later law-and-order system."
+      );
+
+      render();
+      save();
+    } else if (choice === "2") {
+      say(
+        "Current status: " + g.political +
+        ". This version does not yet track criminal records or investigations."
+      );
+    } else {
+      say("You left the Police Station.");
     }
 
-    player = { ...STARTING_PLAYER };
+    return;
+  }
 
-    try {
-        localStorage.removeItem(SAVE_KEY);
-    } catch (error) {
-        console.error("Could not clear saved game:", error);
-    }
+  // PROPERTY OFFICE
+  if (name.includes("Property")) {
+    say("Property ownership and management are planned for a later update.");
+    return;
+  }
 
-    updateNotification("A new journey begins! Welcome, citizen.");
-    document.getElementById("save-status").textContent =
-        "New game started.";
-
-    renderGame();
-    saveGame(false);
+  say(name + " is open. More activities will be added as the game develops.");
 }
-
-// Connect the buttons to their actions.
-
-document.getElementById("work-btn").addEventListener("click", performWork);
-document.getElementById("food-btn").addEventListener("click", buyFood);
-document.getElementById("rest-btn").addEventListener("click", rest);
-document.getElementById("sleep-btn").addEventListener("click", sleep);
-
-document.getElementById("change-name-btn").addEventListener(
-    "click",
-    changePlayerName
-);
-
-document.getElementById("save-btn").addEventListener(
-    "click",
-    () => saveGame(true)
-);
-
-document.getElementById("reset-btn").addEventListener("click", resetGame);
-
-// Start the game.
-
-renderGame();
