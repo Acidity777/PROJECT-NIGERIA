@@ -1,1 +1,528 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Nigeria | 3D Lagos Prototype</title>
+<style>
+  * { box-sizing: border-box; }
+
+body {
+margin: 0;
+overflow: hidden;
+background: #b8d9ed;
+font-family: Arial, sans-serif;
+}
+
+#game {
+width: 100vw;
+height: 100vh;
+display: block;
+}
+
+#hud {
+position: absolute;
+top: 16px;
+left: 16px;
+color: white;
+background: rgba(13, 25, 30, 0.82);
+padding: 14px 18px;
+border-radius: 10px;
+max-width: 330px;
+line-height: 1.5;
+}
+
+#hud h2 {
+margin: 0 0 5px;
+font-size: 19px;
+}
+
+#hud p {
+margin: 4px 0;
+font-size: 13px;
+}
+
+#status {
+color: #b7f7c1;
+}
+
+#controls {
+position: absolute;
+right: 16px;
+bottom: 20px;
+display: grid;
+grid-template-columns: repeat(3, 54px);
+gap: 6px;
+}
+
+#controls button {
+width: 54px;
+height: 48px;
+border: 1px solid rgba(255,255,255,.4);
+border-radius: 10px;
+background: rgba(13,25,30,.82);
+color: white;
+font-size: 20px;
+touch-action: none;
+}
+
+#controls button:active {
+background: #bd8c16;
+}
+
+#hint {
+position: absolute;
+left: 16px;
+bottom: 16px;
+background: rgba(255,255,255,.9);
+color: #172329;
+padding: 10px 12px;
+border-radius: 8px;
+font-size: 12px;
+max-width: 270px;
+}
+
+#error {
+display: none;
+position: absolute;
+inset: 20% 8%;
+height: fit-content;
+padding: 20px;
+background: #fff;
+color: #6b1111;
+border: 2px solid #c44;
+border-radius: 10px;
+white-space: pre-wrap;
+} </style>
+
+</head>
+<body>
+
+<div id="hud">
+  <h2>🇳🇬 PROJECT NIGERIA</h2>
+  <p>Location: Lagos — Prototype District</p>
+  <p>Mode: 3D World Development</p>
+  <p id="status">Loading the city...</p>
+</div>
+
+<div id="hint">
+  Move: W A S D · Turn: ← →<br>
+  Explore the first Lagos-inspired street.
+</div>
+
+<div id="controls" aria-label="Touch movement controls">
+  <span></span>
+  <button data-key="w" aria-label="Move forward">▲</button>
+  <span></span>
+  <button data-key="a" aria-label="Move left">◀</button>
+  <button data-key="s" aria-label="Move backward">▼</button>
+  <button data-key="d" aria-label="Move right">▶</button>
+</div>
+
+<div id="error" role="alert"></div>
+<canvas id="game"></canvas>
+
+<script type="module">
+import * as THREE from
+  'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+
+const canvas = document.querySelector('#game');
+const status = document.querySelector('#status');
+const errorBox = document.querySelector('#error');
+
+try {
+  // WORLD
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xb8d9ed);
+  scene.fog = new THREE.Fog(0xb8d9ed, 75, 180);
+
+  const camera = new THREE.PerspectiveCamera(
+    65, window.innerWidth / window.innerHeight, 0.1, 300
+  );
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true
+  });
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  // LIGHTING
+  scene.add(new THREE.HemisphereLight(0xd9edff, 0x69734e, 2));
+
+  const sun = new THREE.DirectionalLight(0xffedce, 2.2);
+  sun.position.set(-25, 45, 20);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  scene.add(sun);
+
+  // MATERIALS
+  const material = (color, roughness = 0.9) =>
+    new THREE.MeshStandardMaterial({ color, roughness });
+
+  const grassMat = material(0x718b50);
+  const roadMat = material(0x44484a);
+  const pavementMat = material(0xb8b0a1);
+  const whiteMat = material(0xf4eee0);
+  const yellowMat = material(0xf2c52e);
+  const darkMat = material(0x26333a);
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x8db9cc,
+    metalness: 0.25,
+    roughness: 0.25
+  });
+
+  // BASIC BOX BUILDER
+  function box(w, h, d, x, y, z, mat, parent = scene) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d), mat
+    );
+    mesh.position.set(x, y, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    parent.add(mesh);
+    return mesh;
+  }
+
+  // GROUND
+  box(180, 0.5, 180, 0, -0.3, 0, grassMat);
+
+  // ROAD AND PAVEMENTS
+  box(12, 0.12, 160, 0, 0, 0, roadMat);
+  box(2.4, 0.25, 160, -7.2, 0.05, 0, pavementMat);
+  box(2.4, 0.25, 160, 7.2, 0.05, 0, pavementMat);
+
+  // ROAD MARKINGS
+  for (let z = -75; z <= 75; z += 9) {
+    box(0.16, 0.025, 4.2, 0, 0.075, z, whiteMat);
+  }
+
+  // BUILDINGS
+  function createBuilding(x, z, w, h, d, color, shop = false) {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+    scene.add(group);
+
+    box(w, h, d, 0, h / 2, 0, material(color), group);
+
+    // Flat roof and simple facade
+    box(w + 0.2, 0.3, d + 0.2, 0, h + 0.12, 0,
+        material(0xaaa39a), group);
+
+    const frontZ = d / 2 + 0.03;
+
+    // Windows
+    const rows = Math.max(1, Math.floor(h / 3));
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < 2; col++) {
+        box(1.05, 1.05, 0.08,
+          (col - 0.5) * w * 0.43,
+          2 + row * 2.5,
+          frontZ,
+          glassMat, group);
+      }
+    }
+
+    // Ground-floor shopfront
+    if (shop) {
+      box(w * 0.65, 1.6, 0.12, 0, 1.15,
+          frontZ + 0.09, darkMat, group);
+
+      box(w * 0.9, 0.45, 0.22, 0, 2.4,
+          frontZ + 0.16, yellowMat, group);
+    }
+
+    return group;
+  }
+
+  const buildingColors = [
+    0xd4b18c, 0xc8c4b4, 0xc47f64,
+    0xe0d5ba, 0x9dbaa1, 0xd6bd76
+  ];
+
+  for (let z = -68; z <= 68; z += 15) {
+    const index = Math.floor((z + 68) / 15);
+
+    createBuilding(
+      -12 - (index % 2) * 2,
+      z, 7, 7 + (index % 3) * 2, 9,
+      buildingColors[index % buildingColors.length],
+      index % 2 === 0
+    );
+
+    createBuilding(
+      12 + (index % 2) * 2,
+      z - 4, 7, 8 + (index % 4), 9,
+      buildingColors[(index + 2) % buildingColors.length],
+      index % 3 === 0
+    );
+  }
+
+  // TREES
+  function createTree(x, z) {
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.25, 2.2, 7),
+      material(0x795436)
+    );
+    trunk.position.set(x, 1.1, z);
+    trunk.castShadow = true;
+    scene.add(trunk);
+
+    const leaves = new THREE.Mesh(
+      new THREE.SphereGeometry(1.4, 8, 7),
+      material(0x397448)
+    );
+    leaves.position.set(x, 3, z);
+    leaves.castShadow = true;
+    scene.add(leaves);
+  }
+
+  for (let z = -65; z <= 65; z += 20) {
+    createTree(-7.5, z);
+    createTree(7.5, z - 8);
+  }
+
+  // STREETLIGHTS
+  function createStreetlight(x, z) {
+    box(0.13, 4.5, 0.13, x, 2.25, z, darkMat);
+    box(1.0, 0.12, 0.12, x + (x < 0 ? 0.4 : -0.4),
+        4.45, z, darkMat);
+
+    const lamp = new THREE.Mesh(
+      new THREE.BoxGeometry(0.35, 0.16, 0.25),
+      material(0xfff1b2, 0.4)
+    );
+    lamp.position.set(x + (x < 0 ? 0.8 : -0.8), 4.35, z);
+    scene.add(lamp);
+  }
+
+  for (let z = -55; z <= 55; z += 28) {
+    createStreetlight(-8.8, z);
+    createStreetlight(8.8, z - 10);
+  }
+
+  // DANFO-STYLE MINIBUS
+  function createDanfo(x, z, rotation = 0) {
+    const bus = new THREE.Group();
+    bus.position.set(x, 0, z);
+    bus.rotation.y = rotation;
+    scene.add(bus);
+
+    // Body
+    box(2.05, 1.45, 3.6, 0, 1.0, 0, yellowMat, bus);
+    box(1.85, 0.75, 2.1, 0, 2.0, -0.15,
+        material(0xd9e7e8), bus);
+
+    // Windshield and windows
+    box(1.65, 0.55, 0.06, 0, 1.85, 1.82,
+        glassMat, bus);
+
+    box(1.7, 0.5, 0.06, 0, 1.8, -1.82,
+        glassMat, bus);
+
+    // Bumpers and front grille
+    box(1.9, 0.18, 0.16, 0, 0.35, 1.85,
+        darkMat, bus);
+
+    box(0.65, 0.22, 0.08, 0, 0.95, 1.88,
+        darkMat, bus);
+
+    // Wheels
+    for (const wheelZ of [-1.15, 1.15]) {
+      for (const side of [-1, 1]) {
+        const wheel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.35, 0.35, 0.18, 12),
+          darkMat
+        );
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(side * 1.05, 0.4, wheelZ);
+        bus.add(wheel);
+      }
+    }
+
+    return bus;
+  }
+
+  const buses = [
+    createDanfo(-2.0, -17, 0),
+    createDanfo(2.1, 24, Math.PI),
+    createDanfo(-2.0, 55, 0)
+  ];
+
+  // PLAYER CHARACTER
+  const player = new THREE.Group();
+  scene.add(player);
+  player.position.set(0, 0, 5);
+
+  const skinMat = material(0x8f583b);
+  const shirtMat = material(0x256b58);
+  const trouserMat = material(0x303743);
+  const shoeMat = material(0x242424);
+
+  const body = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.42, 0.7, 4, 8),
+    shirtMat
+  );
+  body.position.y = 1.15;
+  body.castShadow = true;
+  player.add(body);
+
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 12, 10),
+    skinMat
+  );
+  head.position.y = 2.05;
+  head.castShadow = true;
+  player.add(head);
+
+  const legs = [];
+
+  for (const side of [-1, 1]) {
+    const leg = new THREE.Mesh(
+      new THREE.BoxGeometry(0.25, 0.72, 0.28),
+      trouserMat
+    );
+    leg.position.set(side * 0.2, 0.45, 0);
+    leg.castShadow = true;
+    player.add(leg);
+    legs.push(leg);
+
+    const shoe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.3, 0.14, 0.42),
+      shoeMat
+    );
+    shoe.position.set(side * 0.2, 0.1, 0.08);
+    player.add(shoe);
+  }
+
+  // KEYBOARD AND TOUCH INPUT
+  const keys = new Set();
+
+  window.addEventListener('keydown', event => {
+    const key = event.key.toLowerCase();
+
+    if (['w','a','s','d','arrowleft','arrowright',
+         'arrowup','arrowdown'].includes(key)) {
+      event.preventDefault();
+      keys.add(key);
+    }
+  });
+
+  window.addEventListener('keyup', event => {
+    keys.delete(event.key.toLowerCase());
+  });
+
+  window.addEventListener('blur', () => keys.clear());
+
+  document.querySelectorAll('[data-key]').forEach(button => {
+    const key = button.dataset.key;
+
+    button.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      keys.add(key);
+      button.setPointerCapture(event.pointerId);
+    });
+
+    const release = () => keys.delete(key);
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    button.addEventListener('lostpointercapture', release);
+  });
+
+  // THIRD-PERSON CAMERA
+  const cameraOffset = new THREE.Vector3(0, 5.5, -9);
+  const lookOffset = new THREE.Vector3(0, 1.2, 0);
+
+  let walkingTime = 0;
+  let frameHandle = 0;
+  let previousTime = performance.now();
+
+  function animate(now) {
+    frameHandle = requestAnimationFrame(animate);
+
+    const dt = Math.min((now - previousTime) / 1000, 0.05);
+    previousTime = now;
+
+    const turnLeft = keys.has('arrowleft') || keys.has('a');
+    const turnRight = keys.has('arrowright') || keys.has('d');
+    const forward = keys.has('w') || keys.has('arrowup');
+    const backward = keys.has('s') || keys.has('arrowdown');
+
+    // A and D rotate the character; W and S move.
+    if (turnLeft) player.rotation.y += 1.8 * dt;
+    if (turnRight) player.rotation.y -= 1.8 * dt;
+
+    let moving = false;
+
+    if (forward || backward) {
+      const direction = forward ? 1 : -1;
+      player.position.x +=
+        Math.sin(player.rotation.y) * direction * 5 * dt;
+      player.position.z +=
+        Math.cos(player.rotation.y) * direction * 5 * dt;
+      moving = true;
+    }
+
+    // Keep the player within the prototype district.
+    player.position.x = THREE.MathUtils.clamp(
+      player.position.x, -5.2, 5.2
+    );
+    player.position.z = THREE.MathUtils.clamp(
+      player.position.z, -76, 76
+    );
+
+    walkingTime += dt * (moving ? 10 : 2);
+
+    legs[0].rotation.x = moving ? Math.sin(walkingTime) * 0.45 : 0;
+    legs[1].rotation.x = moving ? -Math.sin(walkingTime) * 0.45 : 0;
+
+    // Follow behind the player.
+    const offset = cameraOffset.clone()
+      .applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation.y);
+
+    const desiredCamera = player.position.clone().add(offset);
+
+    camera.position.lerp(desiredCamera, 1 - Math.exp(-5 * dt));
+
+    const target = player.position.clone().add(lookOffset);
+    camera.lookAt(target);
+
+    status.textContent = moving
+      ? 'You are exploring Lagos!'
+      : 'World loaded — start exploring!';
+
+    renderer.render(scene, camera);
+  }
+
+  // RESIZE
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  });
+
+  animate(performance.now());
+
+  window.addEventListener('pagehide', () => {
+    cancelAnimationFrame(frameHandle);
+    renderer.dispose();
+  }, { once: true });
+
+} catch (error) {
+  console.error(error);
+  errorBox.style.display = 'block';
+  errorBox.textContent =
+    'The 3D world could not start. Check your internet connection and reload the page.\\n\\n' +
+    String(error);
+}
+</script>
+
+</body>
+</html>
 
